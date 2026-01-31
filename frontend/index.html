@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ChurnGuard • Churn Prediction Analysis</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+  --bg-main: #020617;
+  --bg-accent: #0f172a;
+  --glass: rgba(255, 255, 255, 0.08);
+  --glass-light: rgba(255, 255, 255, 0.12);
+  --primary: #6366f1;
+  --secondary: #22d3ee;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #facc15;
+  --text-main: #ffffff;
+  --text-muted: #c7d2fe;
+  --radius-lg: 24px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: 
+    radial-gradient(circle at top left, rgba(30, 64, 175, 0.3), transparent 60%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.25), transparent 55%),
+    linear-gradient(135deg, var(--bg-main), var(--bg-accent));
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* HEADER IMPROVEMENTS */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 2rem;
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 800;
+  font-size: 1.5rem;
+  background: linear-gradient(90deg, #a5b4fc, #67e8f9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo i {
+  font-size: 1.8rem;
+  -webkit-text-fill-color: initial;
+  background: linear-gradient(90deg, #a5b4fc, #67e8f9);
+  -webkit-background-clip: text;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass);
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: var(--glass-light);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* MAIN LAYOUT */
+main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* DASHBOARD GRID */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 2.5rem;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* CARD IMPROVEMENTS */
+.card {
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 2.2rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.card h2 i {
+  color: var(--secondary);
+}
+
+/* INPUT GROUPS */
+.group {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.group:last-child {
+  border-bottom: none;
+}
+
+.group h3 {
+  font-size: 0.85rem;
+  color: var(--secondary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+.field {
+  margin-bottom: 1.2rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+input[type="number"] {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 6, 23, 0.6);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
+}
+
+/* RANGE SLIDER ENHANCEMENTS */
+.range-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+input[type="range"] {
+  flex: 1;
+  height: 6px;
+  border-radius: 10px;
+  background: rgba(2, 6, 23, 0.6);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--secondary);
+  cursor: pointer;
+  border: 3px solid var(--bg-main);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.3);
+}
+
+.range-value {
+  min-width: 50px;
+  text-align: center;
+  padding: 0.4rem 0.8rem;
+  background: rgba(2, 6, 23, 0.6);
+  border-radius: var(--radius-sm);
+  color: var(--secondary);
+  font-weight: 700;
+  font-size: 1rem;
+  border: 1px solid rgba(34, 211, 238, 0.2);
+}
+
+/* BUTTON IMPROVEMENTS */
+.btn-primary {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: none;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
+  transform: rotate(45deg);
+  transition: all 0.5s ease;
+}
+
+.btn-primary:hover::after {
+  left: 100%;
+}
+
+/* LOADING STATE */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* RESULT CARD IMPROVEMENTS */
+.result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.status {
+  font-size: 2.2rem;
+  font-weight: 900;
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 1.5rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.9; }
+}
+
+.low { 
+  color: var(--success);
+  text-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+.medium { 
+  color: var(--warning);
+  text-shadow: 0 0 20px rgba(250, 204, 21, 0.3);
+}
+.high { 
+  color: var(--danger);
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  animation: alertPulse 1.5s infinite;
+}
+
+@keyframes alertPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.confidence {
+  font-size: 3.5rem;
+  font-weight: 900;
+  text-align: center;
+  background: linear-gradient(90deg, #a5b4fc, #67e8f9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2rem;
+}
+
+/* INFO BOXES */
+.info-box {
+  background: var(--glass-light);
+  border-radius: var(--radius-md);
+  padding: 1.2rem;
+  margin-top: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 4px solid var(--secondary);
+  transition: transform 0.3s ease;
+}
+
+.info-box:hover {
+  transform: translateX(5px);
+}
+
+.info-box i {
+  font-size: 1.2rem;
+  color: var(--secondary);
+}
+
+.info-content h4 {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.info-content p {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.alert {
+  background: rgba(239, 68, 68, 0.15);
+  border-left: 4px solid var(--danger);
+  padding: 1.2rem;
+  margin-top: 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.alert i {
+  font-size: 1.5rem;
+}
+
+/* CHART IMPROVEMENTS */
+.chart-container {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(2, 6, 23, 0.4);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 3rem;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .card {
+    padding: 1.5rem;
+  }
+  
+  .status {
+    font-size: 1.8rem;
+    padding: 1rem;
+  }
+  
+  .confidence {
+    font-size: 2.8rem;
+  }
+}
+
+/* TOOLTIP */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.tooltip i {
+  color: var(--secondary);
+  font-size: 0.9rem;
+  cursor: help;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: 250px;
+  background: var(--bg-accent);
+  color: var(--text-main);
+  text-align: center;
+  padding: 0.8rem;
+  border-radius: var(--radius-sm);
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.85rem;
+  font-weight: normal;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* PRESET BUTTONS */
+.preset-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 6, 23, 0.6);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.preset-btn:hover {
+  background: rgba(34, 211, 238, 0.1);
+  color: var(--secondary);
+  border-color: var(--secondary);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    <i class="fas fa-shield-alt"></i>
+    <span>ChurnGuard</span>
+  </div>
+  <button class="back-btn" onclick="location.href='dash.html'">
+    <i class="fas fa-arrow-left"></i>
+    Back to Dashboard
+  </button>
+</header>
+
+<main>
+  <section class="dashboard">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <h2><i class="fas fa-user-edit"></i> Customer Profile</h2>
+      
+      <div class="group">
+        <h3><i class="fas fa-chart-line"></i> Activity Metrics</h3>
+        <div class="grid-2">
+          <div class="field">
+            <label>
+              Total Sessions
+              <span class="tooltip">
+                <i class="fas fa-info-circle"></i>
+                <span class="tooltip-text">Total number of user sessions in the last 30 days</span>
+              </span>
+            </label>
+            <input id="total_sessions" type="number" value="200" min="0">
+          </div>
+          <div class="field">
+            <label>
+              Total Orders
+              <span class="tooltip">
+                <i class="fas fa-info-circle"></i>
+                <span class="tooltip-text">Number of completed purchases</span>
+              </span>
+            </label>
+            <input id="total_orders" type="number" value="5" min="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3><i class="fas fa-shopping-cart"></i> Purchase Behavior</h3>
+        <div class="grid-2">
+          <div class="field">
+            <label>Average Order Value (₹)</label>
+            <input id="avg_order_value" type="number" value="1000" min="0">
+          </div>
+          <div class="field">
+            <label>Customer Lifetime Value (₹)</label>
+            <input id="customer_lifetime_value" type="number" value="4000" min="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3><i class="fas fa-brain"></i> Engagement Metrics</h3>
+        
+        <div class="field">
+          <label>Engagement Score</label>
+          <div class="range-wrapper">
+            <input id="engagement_score" type="range" min="0" max="100" value="75"
+              oninput="updateRangeValue('engagement_score', 'engVal')">
+            <span id="engVal" class="range-value">75</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Bounce Rate (%)</label>
+          <div class="range-wrapper">
+            <input id="bounce_rate" type="range" min="0" max="100" value="35"
+              oninput="updateRangeValue('bounce_rate', 'bounceVal')">
+            <span id="bounceVal" class="range-value">35</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Cart Abandonment Rate (%)</label>
+          <div class="range-wrapper">
+            <input id="cart_abandonment_rate" type="range" min="0" max="100" value="10"
+              oninput="updateRangeValue('cart_abandonment_rate', 'cartVal')">
+            <span id="cartVal" class="range-value">10</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- PRESET BUTTONS -->
+      <div class="group">
+        <h3><i class="fas fa-bolt"></i> Quick Profiles</h3>
+        <div class="preset-buttons">
+          <button class="preset-btn" onclick="loadPreset('lowRisk')">Low Risk</button>
+          <button class="preset-btn" onclick="loadPreset('mediumRisk')">Medium Risk</button>
+          <button class="preset-btn" onclick="loadPreset('highRisk')">High Risk</button>
+          <button class="preset-btn" onclick="loadPreset('reset')">Reset</button>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="predict()" id="predictBtn">
+        <i class="fas fa-bolt"></i>
+        Analyze Churn Risk
+      </button>
+    </div>
+
+    <!-- RESULT CARD -->
+    <div class="card">
+      <div class="result-header">
+        <h2><i class="fas fa-chart-pie"></i> Prediction Results</h2>
+        <button class="preset-btn" onclick="downloadReport()">
+          <i class="fas fa-download"></i> Export
+        </button>
+      </div>
+
+      <div id="status" class="status">Ready for Analysis</div>
+      <div id="confidenceBadge" class="confidence">--%</div>
+
+      <div id="priorityBox" class="info-box">
+        <i class="fas fa-star"></i>
+        <div class="info-content">
+          <h4>CUSTOMER PRIORITY</h4>
+          <p>Awaiting analysis...</p>
+        </div>
+      </div>
+      
+      <div id="actionBox" class="info-box">
+        <i class="fas fa-bullseye"></i>
+        <div class="info-content">
+          <h4>RECOMMENDED ACTION</h4>
+          <p>Submit analysis for recommendations</p>
+        </div>
+      </div>
+      
+      <div id="revenueBox" class="info-box">
+        <i class="fas fa-rupee-sign"></i>
+        <div class="info-content">
+          <h4>REVENUE AT RISK</h4>
+          <p>₹0</p>
+        </div>
+      </div>
+      
+      <div id="alertBox"></div>
+
+      <div class="chart-container">
+        <canvas id="chart"></canvas>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>ChurnGuard Analytics • Real-time Churn Prediction System</p>
+  <p style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;">
+    <i class="fas fa-sync-alt"></i> Model updates every 24 hours
+  </p>
+</footer>
+
+<script>
+let chart;
+let lastPrediction = null;
+
+// Initialize range values
+function updateRangeValue(inputId, spanId) {
+  const input = document.getElementById(inputId);
+  const span = document.getElementById(spanId);
+  span.textContent = input.value;
+}
+
+// Set initial range values
+updateRangeValue('engagement_score', 'engVal');
+updateRangeValue('bounce_rate', 'bounceVal');
+updateRangeValue('cart_abandonment_rate', 'cartVal');
+
+// Preset customer profiles
+const presets = {
+  lowRisk: {
+    total_sessions: 350,
+    total_orders: 12,
+    avg_order_value: 1200,
+    customer_lifetime_value: 8500,
+    engagement_score: 85,
+    bounce_rate: 15,
+    cart_abandonment_rate: 5
+  },
+  mediumRisk: {
+    total_sessions: 150,
+    total_orders: 4,
+    avg_order_value: 800,
+    customer_lifetime_value: 3200,
+    engagement_score: 45,
+    bounce_rate: 55,
+    cart_abandonment_rate: 25
+  },
+  highRisk: {
+    total_sessions: 40,
+    total_orders: 1,
+    avg_order_value: 500,
+    customer_lifetime_value: 500,
+    engagement_score: 15,
+    bounce_rate: 80,
+    cart_abandonment_rate: 65
+  },
+  reset: {
+    total_sessions: 200,
+    total_orders: 5,
+    avg_order_value: 1000,
+    customer_lifetime_value: 4000,
+    engagement_score: 75,
+    bounce_rate: 35,
+    cart_abandonment_rate: 10
+  }
+};
+
+function loadPreset(presetName) {
+  const preset = presets[presetName];
+  for (const [key, value] of Object.entries(preset)) {
+    const input = document.getElementById(key);
+    if (input) {
+      input.value = value;
+      if (input.type === 'range') {
+        input.dispatchEvent(new Event('input'));
+      }
+    }
+  }
+  
+  // Reset results when changing presets
+  document.getElementById('status').textContent = 'Ready for Analysis';
+  document.getElementById('status').className = 'status';
+  document.getElementById('confidenceBadge').textContent = '--%';
+  document.getElementById('priorityBox').innerHTML = `
+    <i class="fas fa-star"></i>
+    <div class="info-content">
+      <h4>CUSTOMER PRIORITY</h4>
+      <p>Awaiting analysis...</p>
+    </div>
+  `;
+  document.getElementById('actionBox').innerHTML = `
+    <i class="fas fa-bullseye"></i>
+    <div class="info-content">
+      <h4>RECOMMENDED ACTION</h4>
+      <p>Submit analysis for recommendations</p>
+    </div>
+  `;
+  document.getElementById('revenueBox').innerHTML = `
+    <i class="fas fa-rupee-sign"></i>
+    <div class="info-content">
+      <h4>REVENUE AT RISK</h4>
+      <p>₹0</p>
+    </div>
+  `;
+  document.getElementById('alertBox').innerHTML = '';
+  
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
+}
+
+function getPriority(confidence) {
+  return Math.min(5, Math.ceil(confidence / 20));
+}
+
+function getAction(confidence) {
+  if (confidence < 30) return "Upsell / Loyalty Program";
+  if (confidence < 60) return "Personalized Engagement Campaign + Discount";
+  return "Immediate Retention Outreach & VIP Support";
+}
+
+function animateValue(element, start, end, duration) {
+  const startTime = performance.now();
+  
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easeProgress = 1 - Math.pow(1 - progress, 3); // Easing function
+    
+    const currentValue = Math.round(start + (end - start) * easeProgress);
+    element.textContent = currentValue + "%";
+    
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
+  }
+  
+  requestAnimationFrame(update);
+}
+
+async function predict() {
+  const btn = document.getElementById('predictBtn');
+  const originalHTML = btn.innerHTML;
+  
+  // Show loading state
+  btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+  btn.classList.add('loading');
+  
+  // Collect data
+  const data = {
+    total_sessions: +document.getElementById('total_sessions').value,
+    total_orders: +document.getElementById('total_orders').value,
+    avg_order_value: +document.getElementById('avg_order_value').value,
+    days_since_last_purchase: 30,
+    support_tickets: 1,
+    returns_requested: 0,
+    bounce_rate: +document.getElementById('bounce_rate').value,
+    conversion_rate: 3.5,
+    cart_abandonment_rate: +document.getElementById('cart_abandonment_rate').value,
+    customer_lifetime_value: +document.getElementById('customer_lifetime_value').value,
+    engagement_score: +document.getElementById('engagement_score').value
+  };
+  
+  try {
+    const response = await fetch("http://127.0.0.1:8000/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    const confidence = result.confidence_percent;
+    lastPrediction = { data, result, timestamp: new Date() };
+    
+    // Update UI with results
+    const status = document.getElementById('status');
+    status.textContent = result.churn_prediction;
+    status.className = `status ${confidence < 30 ? "low" : confidence < 60 ? "medium" : "high"}`;
+    
+    // Animate confidence score
+    animateValue(document.getElementById('confidenceBadge'), 0, confidence, 1500);
+    
+    // Update info boxes with animation
+    setTimeout(() => {
+      document.getElementById('priorityBox').innerHTML = `
+        <i class="fas fa-star"></i>
+        <div class="info-content">
+          <h4>CUSTOMER PRIORITY</h4>
+          <p>${getPriority(confidence)} / 5</p>
+        </div>
+      `;
+      
+      document.getElementById('actionBox').innerHTML = `
+        <i class="fas fa-bullseye"></i>
+        <div class="info-content">
+          <h4>RECOMMENDED ACTION</h4>
+          <p>${getAction(confidence)}</p>
+        </div>
+      `;
+      
+      const revenueAtRisk = Math.round(confidence * data.customer_lifetime_value / 100);
+      document.getElementById('revenueBox').innerHTML = `
+        <i class="fas fa-rupee-sign"></i>
+        <div class="info-content">
+          <h4>REVENUE AT RISK</h4>
+          <p>₹${revenueAtRisk.toLocaleString()}</p>
+        </div>
+      `;
+      
+      // Show alert if high risk
+      if (confidence >= 70) {
+        document.getElementById('alertBox').innerHTML = `
+          <div class="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+              <strong>🚨 High Risk Customer</strong><br>
+              <small>Immediate attention required. High probability of churn.</small>
+            </div>
+          </div>
+        `;
+      } else {
+        document.getElementById('alertBox').innerHTML = '';
+      }
+      
+      // Render chart
+      renderChart(confidence);
+    }, 500);
+    
+  } catch (error) {
+    console.error('Prediction error:', error);
+    document.getElementById('status').textContent = 'Error';
+    document.getElementById('status').className = 'status high';
+    document.getElementById('confidenceBadge').textContent = 'Error';
+    document.getElementById('alertBox').innerHTML = `
+      <div class="alert">
+        <i class="fas fa-exclamation-circle"></i>
+        <div>
+          <strong>Connection Error</strong><br>
+          <small>Unable to connect to prediction server. Please check your connection.</small>
+        </div>
+      </div>
+    `;
+  } finally {
+    // Reset button
+    btn.innerHTML = originalHTML;
+    btn.classList.remove('loading');
+  }
+}
+
+function renderChart(confidence) {
+  const ctx = document.getElementById('chart').getContext('2d');
+  
+  if (chart) {
+    chart.destroy();
+  }
+  
+  chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Churn Risk', 'Retention Probability'],
+      datasets: [{
+        data: [confidence, 100 - confidence],
+        backgroundColor: [
+          confidence >= 70 ? '#ef4444' : confidence >= 30 ? '#facc15' : '#22c55e',
+          'rgba(255, 255, 255, 0.1)'
+        ],
+        borderWidth: 0,
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: '75%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: 'white',
+            padding: 20,
+            font: {
+              size: 14
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.label}: ${context.raw}%`;
+            }
+          }
+        }
+      },
+      animation: {
+        animateScale: true,
+        animateRotate: true,
+        duration: 2000,
+        easing: 'easeOutQuart'
+      }
+    }
+  });
+}
+
+function downloadReport() {
+  if (!lastPrediction) {
+    alert('Please run an analysis first!');
+    return;
+  }
+  
+  const report = `
+ChurnGuard Analysis Report
+==========================
+Generated: ${lastPrediction.timestamp.toLocaleString()}
+
+CUSTOMER METRICS:
+• Total Sessions: ${lastPrediction.data.total_sessions}
+• Total Orders: ${lastPrediction.data.total_orders}
+• Avg Order Value: ₹${lastPrediction.data.avg_order_value}
+• Customer Lifetime Value: ₹${lastPrediction.data.customer_lifetime_value}
+• Engagement Score: ${lastPrediction.data.engagement_score}%
+• Bounce Rate: ${lastPrediction.data.bounce_rate}%
+• Cart Abandonment: ${lastPrediction.data.cart_abandonment_rate}%
+
+PREDICTION RESULTS:
+• Churn Status: ${lastPrediction.result.churn_prediction}
+• Confidence Level: ${lastPrediction.result.confidence_percent}%
+• Customer Priority: ${getPriority(lastPrediction.result.confidence_percent)}/5
+• Revenue at Risk: ₹${Math.round(lastPrediction.result.confidence_percent * lastPrediction.data.customer_lifetime_value / 100)}
+• Recommended Action: ${getAction(lastPrediction.result.confidence_percent)}
+
+ACTION REQUIRED: ${lastPrediction.result.confidence_percent >= 70 ? 'IMMEDIATE' : lastPrediction.result.confidence_percent >= 30 ? 'SCHEDULED' : 'MONITOR'}
+  `.trim();
+  
+  const blob = new Blob([report], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `churnguard-report-${new Date().toISOString().split('T')[0]}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Keyboard shortcut for prediction
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    predict();
+  }
+});
+
+// Initialize tooltips
+document.querySelectorAll('.tooltip').forEach(tooltip => {
+  tooltip.addEventListener('mouseenter', function() {
+    const tooltipText = this.querySelector('.tooltip-text');
+    tooltipText.style.visibility = 'visible';
+    tooltipText.style.opacity = '1';
+  });
+  
+  tooltip.addEventListener('mouseleave', function() {
+    const tooltipText = this.querySelector('.tooltip-text');
+    tooltipText.style.visibility = 'hidden';
+    tooltipText.style.opacity = '0';
+  });
+});
+</script>
+</body>
+</html>

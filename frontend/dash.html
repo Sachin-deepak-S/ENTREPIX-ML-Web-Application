@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChurnGuard • AI Customer Churn Prediction</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  /* New Color Scheme - Gradient Deep Ocean with Teal Accents */
+  --bg-main: #0a1020;
+  --bg-accent: #0f1729;
+  --card: #1a243f;
+  --primary: #00d4ff;
+  --primary-light: #5ee7ff;
+  --secondary: #00ffc8;
+  --secondary-light: #6dffdc;
+  --accent: #9d4edd;
+  --accent-light: #c77dff;
+  --success: #00ffaa;
+  --warning: #ffcc00;
+  --text: #f0f9ff;
+  --text-muted: #a9c7e6;
+  --text-light: #7ca3d4;
+  --gradient-primary: linear-gradient(135deg, #00d4ff, #9d4edd);
+  --gradient-secondary: linear-gradient(135deg, #00ffc8, #00b4ff);
+  --gradient-accent: linear-gradient(135deg, #9d4edd, #ff2e8b);
+  --gradient-bg: linear-gradient(180deg, #0a1020 0%, #0c1225 50%, #0f1729 100%);
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  --shadow-light: 0 5px 15px rgba(0, 212, 255, 0.25);
+  --glow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--gradient-bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Animated Background Effects */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(157, 78, 221, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(0, 255, 200, 0.05) 0%, transparent 50%);
+  z-index: -1;
+}
+
+/* NAVBAR */
+nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 1.2rem 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(10, 16, 32, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.6rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: var(--glow);
+}
+
+.logo-icon {
+  font-size: 1.8rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-links a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.nav-links a:hover::before {
+  left: 100%;
+}
+
+.nav-links a:hover {
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--text);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-light);
+}
+
+.nav-links a.active {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-light);
+}
+
+.nav-cta {
+  background: var(--gradient-primary);
+  color: white !important;
+  font-weight: 600;
+}
+
+/* MAIN CONTAINER */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* SECTIONS */
+section {
+  padding: 6rem 0;
+  position: relative;
+}
+
+section .container {
+  position: relative;
+  z-index: 2;
+}
+
+.section-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+  text-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-light);
+  max-width: 700px;
+  margin-bottom: 3rem;
+}
+
+/* HERO SECTION */
+.hero {
+  padding-top: 10rem;
+  padding-bottom: 8rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
+  z-index: 1;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -200px;
+  left: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(157, 78, 221, 0.15) 0%, transparent 70%);
+  z-index: 1;
+}
+
+.hero .container {
+  position: relative;
+  z-index: 2;
+}
+
+.hero h1 {
+  font-size: 3.8rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+.hero span {
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+
+.hero p {
+  font-size: 1.3rem;
+  color: var(--text-muted);
+  max-width: 800px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  margin-top: 4rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  min-width: 150px;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: var(--shadow-light);
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: var(--text-light);
+  margin-top: 0.5rem;
+}
+
+.btn {
+  padding: 1.1rem 2.5rem;
+  border-radius: 50px;
+  border: none;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.7s;
+  z-index: -1;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(0, 212, 255, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.5);
+}
+
+.btn-group {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+/* FEATURES SECTION */
+#features {
+  background: rgba(10, 16, 32, 0.5);
+  border-radius: 2rem;
+  margin: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+#features::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 30% 30%, rgba(0, 255, 200, 0.05) 0%, transparent 50%);
+  z-index: 1;
+}
+
+#features .container {
+  position: relative;
+  z-index: 2;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.feature-card {
+  background: linear-gradient(145deg, rgba(26, 36, 63, 0.8), rgba(15, 23, 41, 0.8));
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  transition: all 0.4s ease;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gradient-primary);
+  transform: scaleY(0);
+  transition: transform 0.4s ease;
+}
+
+.feature-card:hover::before {
+  transform: scaleY(1);
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: var(--shadow);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.feature-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.feature-card p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.feature-list {
+  list-style: none;
+  margin-top: 1.5rem;
+}
+
+.feature-list li {
+  color: var(--text-light);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  transition: all 0.3s ease;
+}
+
+.feature-list li:hover {
+  color: var(--secondary);
+  transform: translateX(5px);
+}
+
+.feature-list i {
+  color: var(--success);
+  font-size: 0.9rem;
+}
+
+/* HOW IT WORKS */
+#how-it-works {
+  text-align: center;
+}
+
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 4rem;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.step {
+  flex: 1;
+  min-width: 250px;
+  max-width: 300px;
+  position: relative;
+  background: linear-gradient(145deg, rgba(26, 36, 63, 0.8), rgba(15, 23, 41, 0.8));
+  padding: 2.5rem 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  transition: all 0.4s ease;
+}
+
+.step:hover {
+  transform: translateY(-10px);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: var(--shadow);
+}
+
+.step-number {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 50px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  box-shadow: var(--shadow);
+}
+
+.step h3 {
+  font-size: 1.4rem;
+  margin: 1.5rem 0 1rem;
+  color: var(--text);
+}
+
+.step p {
+  color: var(--text-muted);
+}
+
+/* PRICING SECTION */
+#pricing {
+  background: rgba(10, 16, 32, 0.5);
+  border-radius: 2rem;
+  margin: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+#pricing::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 70% 30%, rgba(157, 78, 221, 0.05) 0%, transparent 50%);
+  z-index: 1;
+}
+
+#pricing .container {
+  position: relative;
+  z-index: 2;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2.5rem;
+  margin-top: 3rem;
+}
+
+.pricing-card {
+  background: linear-gradient(145deg, rgba(26, 36, 63, 0.8), rgba(15, 23, 41, 0.8));
+  padding: 3rem 2.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.pricing-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: var(--gradient-primary);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.pricing-card:hover::before {
+  transform: scaleX(1);
+}
+
+.pricing-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--shadow);
+}
+
+.pricing-card.popular {
+  border-color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+}
+
+.popular-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--gradient-primary);
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-light);
+}
+
+.pricing-card h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.price {
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 1.5rem 0;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.price span {
+  font-size: 1rem;
+  color: var(--text-light);
+}
+
+.pricing-features {
+  list-style: none;
+  margin: 2rem 0;
+}
+
+.pricing-features li {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.pricing-features li:hover {
+  color: var(--text);
+  transform: translateX(5px);
+}
+
+.pricing-features li i {
+  color: var(--success);
+}
+
+.pricing-features li.disabled {
+  color: var(--text-light);
+  opacity: 0.5;
+}
+
+.pricing-features li.disabled i {
+  color: var(--text-light);
+}
+
+/* TESTIMONIALS */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.testimonial-card {
+  background: linear-gradient(145deg, rgba(26, 36, 63, 0.8), rgba(15, 23, 41, 0.8));
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: var(--shadow);
+}
+
+.testimonial-card::before {
+  content: '"';
+  position: absolute;
+  top: 1rem;
+  left: 1.5rem;
+  font-size: 4rem;
+  color: rgba(0, 212, 255, 0.2);
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+
+.testimonial-text {
+  font-style: italic;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.author-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  box-shadow: var(--shadow-light);
+}
+
+.author-info h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+}
+
+.author-info p {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+/* CTA SECTION */
+#cta {
+  text-align: center;
+  background: var(--gradient-primary);
+  border-radius: 2rem;
+  margin: 2rem;
+  padding: 5rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+#cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100"><path fill="rgba(255,255,255,0.05)" d="M0,70L120,75C240,80,480,90,720,85C960,80,1200,60,1320,50L1440,40L1440,100L1320,100C1200,100,960,100,720,100C480,100,240,100,120,100L0,100Z"></path></svg>');
+  background-size: cover;
+  opacity: 0.2;
+}
+
+#cta .container {
+  position: relative;
+  z-index: 2;
+}
+
+#cta h2 {
+  font-size: 2.8rem;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+#cta p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 700px;
+  margin: 0 auto 2.5rem;
+}
+
+.cta-btn {
+  background: white;
+  color: #0a1020;
+  font-size: 1.2rem;
+  padding: 1.2rem 3rem;
+  font-weight: 700;
+}
+
+.cta-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* FOOTER */
+footer {
+  background: rgba(10, 16, 32, 0.95);
+  padding: 5rem 0 2rem;
+  border-top: 1px solid rgba(0, 212, 255, 0.1);
+  position: relative;
+}
+
+footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+.footer-column h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
+.footer-column p {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+
+.footer-links {
+  list-style: none;
+}
+
+.footer-links li {
+  margin-bottom: 0.8rem;
+}
+
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.footer-links a:hover {
+  color: var(--primary);
+  transform: translateX(5px);
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.contact-item:hover {
+  color: var(--text);
+  transform: translateX(5px);
+}
+
+.contact-item i {
+  color: var(--primary);
+  width: 20px;
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.social-link {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(0, 212, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.social-link:hover {
+  background: var(--gradient-primary);
+  color: white;
+  transform: translateY(-3px) scale(1.1);
+  box-shadow: var(--shadow-light);
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(0, 212, 255, 0.1);
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+/* ANIMATIONS */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.floating {
+  animation: float 5s ease-in-out infinite;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .hero h1 {
+    font-size: 3.2rem;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  nav {
+    padding: 1rem 5%;
+    flex-wrap: wrap;
+  }
+  
+  .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .hero {
+    padding-top: 8rem;
+  }
+  
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .hero p {
+    font-size: 1.1rem;
+  }
+  
+  .section-title {
+    font-size: 2.2rem;
+  }
+  
+  .btn-group {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+  
+  #features, #pricing, #cta {
+    margin: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 2rem;
+  }
+  
+  .section-title {
+    font-size: 1.8rem;
+  }
+  
+  .feature-card, .pricing-card, .testimonial-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .steps {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .step {
+    max-width: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <span class="logo-icon">🛡️</span>
+    <span>ChurnGuard</span>
+  </div>
+  <div class="nav-links">
+    <a href="#features"><i class="fas fa-star"></i> Features</a>
+    <a href="#how-it-works"><i class="fas fa-cogs"></i> How It Works</a>
+    <a href="#pricing"><i class="fas fa-tag"></i> Pricing</a>
+    <a href="#testimonials"><i class="fas fa-quote-left"></i> Testimonials</a>
+    <a href="index.html" class="nav-cta"><i class="fas fa-rocket"></i> Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <h1>
+      Predict <span>Customer Churn</span> with AI<br>
+      Before It Impacts Your Revenue
+    </h1>
+    <p>
+      ChurnGuard's advanced AI algorithms analyze customer behavior patterns to identify at-risk customers with 94% accuracy. Take proactive measures to retain valuable customers and maximize lifetime value.
+    </p>
+    <div class="btn-group">
+      <a href="index.html" class="btn floating">
+        <i class="fas fa-play-circle"></i> Start Free Trial
+      </a>
+      <button class="btn btn-secondary" onclick="location.href='#features'">
+        <i class="fas fa-chart-line"></i> See Demo
+      </button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-number">94%</div>
+        <div class="stat-label">Prediction Accuracy</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">230+</div>
+        <div class="stat-label">Businesses Protected</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">35%</div>
+        <div class="stat-label">Avg. Churn Reduction</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Real-time Monitoring</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <h2 class="section-title">Powerful Features</h2>
+    <p class="section-subtitle">Our AI-driven platform provides comprehensive churn prediction and customer retention tools to help your business thrive.</p>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-brain"></i>
+        </div>
+        <h3>AI-Powered Prediction</h3>
+        <p>Advanced machine learning models analyze hundreds of behavioral signals to predict churn risk with exceptional accuracy.</p>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Real-time risk scoring</li>
+          <li><i class="fas fa-check"></i> Behavioral pattern analysis</li>
+          <li><i class="fas fa-check"></i> Predictive analytics dashboard</li>
+          <li><i class="fas fa-check"></i> Custom model training</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-chart-network"></i>
+        </div>
+        <h3>Smart Customer Segmentation</h3>
+        <p>Automatically segment customers based on churn risk, value, and engagement to prioritize retention efforts effectively.</p>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Dynamic segmentation</li>
+          <li><i class="fas fa-check"></i> Customer lifetime value tracking</li>
+          <li><i class="fas fa-check"></i> Engagement scoring</li>
+          <li><i class="fas fa-check"></i> Retention priority queues</li>
+        </ul>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-bullseye"></i>
+        </div>
+        <h3>Automated Retention Campaigns</h3>
+        <p>Launch targeted retention campaigns automatically based on churn risk scores and customer profiles.</p>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Personalized email sequences</li>
+          <li><i class="fas fa-check"></i> In-app messaging automation</li>
+          <li><i class="fas fa-check"></i> Special offer recommendations</li>
+          <li><i class="fas fa-check"></i> Campaign performance tracking</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="container">
+    <h2 class="section-title">How ChurnGuard Works</h2>
+    <p class="section-subtitle">Our simple 4-step process helps you identify and retain at-risk customers efficiently.</p>
+    
+    <div class="steps">
+      <div class="step floating" style="animation-delay: 0s;">
+        <div class="step-number">1</div>
+        <h3>Connect Your Data</h3>
+        <p>Integrate with your CRM, payment systems, and customer databases securely. We support 50+ integrations.</p>
+      </div>
+      
+      <div class="step floating" style="animation-delay: 0.5s;">
+        <div class="step-number">2</div>
+        <h3>AI Analysis</h3>
+        <p>Our algorithms process customer data to identify patterns and calculate individual churn risk scores.</p>
+      </div>
+      
+      <div class="step floating" style="animation-delay: 1s;">
+        <div class="step-number">3</div>
+        <h3>Get Insights</h3>
+        <p>Receive actionable insights, risk alerts, and personalized retention recommendations for each customer.</p>
+      </div>
+      
+      <div class="step floating" style="animation-delay: 1.5s;">
+        <div class="step-number">4</div>
+        <h3>Take Action</h3>
+        <p>Implement recommended retention strategies or automate campaigns directly from the dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <h2 class="section-title">Simple, Transparent Pricing</h2>
+    <p class="section-subtitle">Choose the plan that fits your business needs. All plans include a 14-day free trial.</p>
+    
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <h3>Starter</h3>
+        <div class="price">₹0<span>/month</span></div>
+        <p>Perfect for small businesses getting started with churn prediction</p>
+        <ul class="pricing-features">
+          <li><i class="fas fa-check"></i> Up to 1,000 customers</li>
+          <li><i class="fas fa-check"></i> Basic churn prediction</li>
+          <li><i class="fas fa-check"></i> Email notifications</li>
+          <li><i class="fas fa-check"></i> 7-day data history</li>
+          <li class="disabled"><i class="fas fa-times"></i> Advanced segmentation</li>
+          <li class="disabled"><i class="fas fa-times"></i> Automated campaigns</li>
+        </ul>
+        <a href="index.html" class="btn btn-secondary" style="width: 100%; display: block; text-align: center;">Get Started Free</a>
+      </div>
+      
+      <div class="pricing-card popular floating">
+        <div class="popular-badge">MOST POPULAR</div>
+        <h3>Professional</h3>
+        <div class="price">₹999<span>/month</span></div>
+        <p>Ideal for growing businesses with advanced retention needs</p>
+        <ul class="pricing-features">
+          <li><i class="fas fa-check"></i> Up to 10,000 customers</li>
+          <li><i class="fas fa-check"></i> Advanced AI prediction</li>
+          <li><i class="fas fa-check"></i> Real-time alerts</li>
+          <li><i class="fas fa-check"></i> 90-day data history</li>
+          <li><i class="fas fa-check"></i> Smart segmentation</li>
+          <li><i class="fas fa-check"></i> Basic campaign automation</li>
+        </ul>
+        <a href="index.html" class="btn" style="width: 100%; display: block; text-align: center;">Start Free Trial</a>
+      </div>
+      
+      <div class="pricing-card">
+        <h3>Enterprise</h3>
+        <div class="price">Custom<span>/month</span></div>
+        <p>For large organizations with complex customer retention requirements</p>
+        <ul class="pricing-features">
+          <li><i class="fas fa-check"></i> Unlimited customers</li>
+          <li><i class="fas fa-check"></i> Custom AI models</li>
+          <li><i class="fas fa-check"></i> 24/7 priority support</li>
+          <li><i class="fas fa-check"></i> Unlimited data history</li>
+          <li><i class="fas fa-check"></i> Advanced automation</li>
+          <li><i class="fas fa-check"></i> API & Webhook access</li>
+        </ul>
+        <a href="index.html" class="btn btn-secondary" style="width: 100%; display: block; text-align: center;">Contact Sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <h2 class="section-title">Trusted by Industry Leaders</h2>
+    <p class="section-subtitle">See what our customers have to say about ChurnGuard's impact on their business.</p>
+    
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-text">
+          "ChurnGuard helped us reduce customer churn by 42% in just 3 months. The AI predictions are incredibly accurate and the actionable insights have transformed our retention strategy."
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">RK</div>
+          <div class="author-info">
+            <h4>Rahul Kumar</h4>
+            <p>CEO, TechSolutions India</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="testimonial-card">
+        <div class="testimonial-text">
+          "The automated retention campaigns feature saved our marketing team 20+ hours per week. We're now proactively engaging at-risk customers instead of reacting to cancellations."
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">SP</div>
+          <div class="author-info">
+            <h4>Priya Sharma</h4>
+            <p>Head of Marketing, GrowthLabs</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="testimonial-card">
+        <div class="testimonial-text">
+          "As a SaaS company, customer retention is critical. ChurnGuard's predictive analytics have given us a competitive edge we didn't know was possible. Highly recommended!"
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">AM</div>
+          <div class="author-info">
+            <h4>Amit Mehta</h4>
+            <p>CTO, CloudStack Solutions</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section id="cta">
+  <div class="container">
+    <h2>Ready to Reduce Your Customer Churn?</h2>
+    <p>Join 230+ businesses that trust ChurnGuard to protect their revenue and build stronger customer relationships. Start your free 14-day trial today.</p>
+    <a href="index.html" class="btn cta-btn floating">
+      <i class="fas fa-rocket"></i> Start Free Trial - No Credit Card Required
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>ChurnGuard</h3>
+        <p>AI-powered customer intelligence platform that helps businesses predict and prevent customer churn, maximizing customer lifetime value.</p>
+        <div class="social-links">
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-column">
+        <h3>Quick Links</h3>
+        <ul class="footer-links">
+          <li><a href="#features"><i class="fas fa-chevron-right"></i> Features</a></li>
+          <li><a href="#how-it-works"><i class="fas fa-chevron-right"></i> How It Works</a></li>
+          <li><a href="#pricing"><i class="fas fa-chevron-right"></i> Pricing</a></li>
+          <li><a href="#testimonials"><i class="fas fa-chevron-right"></i> Case Studies</a></li>
+          <li><a href="#"><i class="fas fa-chevron-right"></i> Documentation</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column">
+        <h3>Contact Us</h3>
+        <div class="contact-info">
+          <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <span>support@churnguard.ai</span>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-phone"></i>
+            <span>+91 79044 55034</span>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Bangalore, Karnataka, India</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>© 2024 ChurnGuard AI. All rights reserved. | <a href="#" style="color: var(--primary); text-decoration: none;">Privacy Policy</a> | <a href="#" style="color: var(--primary); text-decoration: none;">Terms of Service</a></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Add smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const targetId = this.getAttribute('href');
+    if(targetId === '#') return;
+    
+    const targetElement = document.querySelector(targetId);
+    if(targetElement) {
+      window.scrollTo({
+        top: targetElement.offsetTop - 80,
+        behavior: 'smooth'
+      });
+    }
+  });
+});
+
+// Add scroll effect to navbar
+window.addEventListener('scroll', function() {
+  const nav = document.querySelector('nav');
+  if (window.scrollY > 50) {
+    nav.style.padding = '0.8rem 5%';
+    nav.style.background = 'rgba(10, 16, 32, 0.98)';
+    nav.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.3)';
+  } else {
+    nav.style.padding = '1.2rem 5%';
+    nav.style.background = 'rgba(10, 16, 32, 0.92)';
+    nav.style.boxShadow = 'none';
+  }
+});
+
+// Simple counter animation for stats
+const statNumbers = document.querySelectorAll('.stat-number');
+const observerOptions = {
+  threshold: 0.5
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const stat = entry.target;
+      const finalValue = parseInt(stat.textContent);
+      let currentValue = 0;
+      const increment = finalValue / 50;
+      const timer = setInterval(() => {
+        currentValue += increment;
+        if (currentValue >= finalValue) {
+          stat.textContent = finalValue + (stat.textContent.includes('%') ? '%' : '+');
+          clearInterval(timer);
+        } else {
+          stat.textContent = Math.floor(currentValue) + (stat.textContent.includes('%') ? '%' : '+');
+        }
+      }, 30);
+      observer.unobserve(stat);
+    }
+  });
+}, observerOptions);
+
+statNumbers.forEach(stat => {
+  observer.observe(stat);
+});
+
+// Add floating animation to cards on mouse move
+document.addEventListener('mousemove', function(e) {
+  const cards = document.querySelectorAll('.feature-card, .pricing-card, .testimonial-card, .step');
+  cards.forEach(card => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateY = (x - centerX) / 25;
+    const rotateX = (centerY - y) / 25;
+    
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  });
+});
+
+// Reset card transforms on mouse leave
+document.addEventListener('mouseleave', function() {
+  const cards = document.querySelectorAll('.feature-card, .pricing-card, .testimonial-card, .step');
+  cards.forEach(card => {
+    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+  });
+});
+</script>
+</body>
+</html>
