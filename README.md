@@ -109,6 +109,7 @@ Sample Request
 }
 ```
 ## 📊 Use Cases
+
 - Customer retention strategy planning
 
 - Business intelligence and analytics
@@ -118,6 +119,7 @@ Sample Request
 - Academic and ML portfolio demonstration
 
 ## 🧪 Future Improvements
+
 - User authentication (JWT)
 
 - Model retraining pipeline
@@ -129,6 +131,7 @@ Sample Request
 - Model explainability (SHAP, feature importance)
 
 ## 🏅 Event Participation
+
 Participated in ENTREPIX – Entrepreneurship Event
 
 Presented an AI-powered customer churn prediction solution
@@ -136,6 +139,7 @@ Presented an AI-powered customer churn prediction solution
 Gained experience in innovation, teamwork, and business-focused ML applications
 
 ## 👥 Team Members
+
 Sachin Deepak S
 
 Sabarinath
@@ -145,5 +149,5 @@ Rohith P
 Sabarish K
 
 ## 📄 License
-This 
-roject is intended for educational and demonstration purposes.
+
+This project is intended for educational and demonstration purposes.
