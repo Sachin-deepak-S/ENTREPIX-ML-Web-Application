@@ -87,7 +87,7 @@ http://127.0.0.1:8000
 Open frontend/index.html directly in a browser
 (or use Live Server / any local web server)
 
-##🔗 API Usage
+## 🔗 API Usage
 - Predict Churn
 - Endpoint
 
@@ -144,5 +144,6 @@ Rohith P
 
 Sabarish K
 
-📄 License
-This project is intended for educational and demonstration purposes.
+## 📄 License
+This p
+roject is intended for educational and demonstration purposes.
