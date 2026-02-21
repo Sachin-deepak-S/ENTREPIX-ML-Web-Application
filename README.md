@@ -29,7 +29,7 @@ The trained model is saved and loaded using `joblib` for efficient inference.
 ---
 
 ## 🏗️ Project Architecture
-
+```
 ENTREPIX-ML-Web-Application/
 │
 ├── backend/
@@ -45,7 +45,7 @@ ENTREPIX-ML-Web-Application/
 ├── README.md
 └── .gitignore
 
-
+```
 ---
 
 ## 🛠️ Tech Stack
